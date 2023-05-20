@@ -1,82 +1,103 @@
+const start = [5,5]
+
 
 class Move{
-    constructor(coord){
-        this.coord = coord;
+    constructor(x,y){
+        this.x = x;
+        this.y= y;
         this.children = [];
+        this.parent = null;
     }
     
 }
+
 
 class LocationTree{
-    constructor(array){
-        this.root = new Move(array[0])
+    constructor(x,y){
+        this.root = new Move(x,y)
     }
 }
 
-const root = new LocationTree([[1,1]]);
-// console.log(start)
-// const test = new Move([2,2])
-// const test2 = new Move([3,3])
-// start.root.children.push(test)
-// test.children.push(test2)
-// console.log(start)
 
 
+console.log(printMoves(bfs([8,1], [1,8],8)))
 
-function bfs(start, target){
-    const visited = [];
-    const que = [start];
+function bfs(knightPos, target, n){
+
+    if(knightPos[0] == target[0] && knightPos[1] == target[1])return knightPos
+
+    let que = [];
+    que.push(new Move(knightPos[0],knightPos[1]));
+    const visited = Array(n).fill().map(()=>Array(n).fill(false))
+    visited[knightPos[1]-1][knightPos[0]-1]=true;
+    
+
     
     while (que.length > 0){
-        const current = que.shift();
-        if(current === null) continue;
-        visited.push(current);
-        console.log(current)
-        let possibleMoves = possibleMovesFunc(current, 8, 8)
-        let n = possibleMoves.length
-        for(let i = 0; i<=n; i++){
-            if (!visited.includes(possibleMoves[i])){
+        let current = que.shift();      
+        let possibleMoves = possibleMovesFunc(current.x, current.y, n)
+        for(let i = 0; i<possibleMoves.length; i++){
+            if (visited[possibleMoves[i].y-1][possibleMoves[i].x-1] === false){
                 que.push(possibleMoves[i])
+                if(current.x == target[0] && current.y == target[1]){
+                    return current
+                    
+                }
+                current.children.push(possibleMoves[i])
+                possibleMoves[i].parent = current
+
             }
         }
         
-        if(current[0] == target[0] && current[1] == target[1]) break;
+
+
+      
+        
     }
-    return 
+    return current
 }
 
-function possibleMovesFunc(coord, xMax, yMax){
-    const xStart = coord[0];
-    const yStart = coord[1];
+function printMoves(node){
+    const result = [];
+    result.push(node)
+    function printMovesHelper(node){
+        if(!node.parent)return null;
+
+        result.unshift(node.parent)
+        printMovesHelper(node.parent)
+    
+        return result
+    }
+    printMovesHelper(node)
+    return result
+}
+
+function possibleMovesFunc(x,y, n){
+  
 
     let moves=[];
     let newArr=[]
 
-    moves[0] = [xStart + 2, yStart + 1]
-    moves[1] = [xStart - 2, yStart + 1]
-    moves[2] = [xStart - 2, yStart - 1]
-    moves[3] = [xStart + 2, yStart - 1]
-    moves[4] = [xStart + 1, yStart + 2]
-    moves[5] = [xStart - 1, yStart + 2]
-    moves[6] = [xStart - 1, yStart - 2]
-    moves[7] = [xStart + 1, yStart - 2]
+    moves[0] = new Move(x+2, y+1)
+    moves[1] = new Move(x-2, y+1)
+    moves[2] = new Move(x+2, y-1)
+    moves[3] = new Move(x-2, y-1)
+    moves[4] = new Move(x+1, y+2)
+    moves[5] = new Move(x-1, y+2)
+    moves[6] = new Move(x+1, y-2)
+    moves[7] = new Move(x-1, y-2)
 
     for(let i = 0; i<moves.length; i++){
-        if (moves[i][0]<=xMax && moves[i][1]<=yMax &&
-            moves[i][0]>=1 && moves[i][1]>=1){
+        if (moves[i].x<=n && moves[i].y<=n &&
+            moves[i].x>=1 && moves[i].y>=1){
             newArr.push(moves[i])
         }
     }
-  
+   
    return newArr
 }
     
-
-    console.log(bfs([5,5],[8,8]))
   
 
 
 
-
-
-    
